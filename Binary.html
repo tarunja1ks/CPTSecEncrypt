@@ -12,6 +12,11 @@ search_exclude: true
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fetch Request Example</title>
 <style>
+    .button-container {
+        display: flex;
+        justify-content: space-between; /* Adjust spacing between buttons */
+        
+    }
     body {
         font-family: Arial, sans-serif;
     }
@@ -29,9 +34,20 @@ search_exclude: true
         color: #fff;
         border: none;
         cursor: pointer;
+        margin-right: 10px; /* Add right margin between buttons */
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.4); /* Apply box shadow on hover */
+        transition: box-shadow 0.3s ease, background-color 0.3s ease;
     }
     button:hover {
         background-color: #0056b3;
+        box-shadow: 0 0 10px rgba(0, 123, 255, 4.0); /* Apply box shadow on hover */
+    }
+    #responseBox {
+        padding: 10px;
+        margin-top: 20px;
+        width: 100%;
+        min-height: 100px;
+        overflow-wrap: break-word;
     }
 </style>
 </head>
@@ -42,11 +58,14 @@ search_exclude: true
     
 
 
-    <button type="button" onclick="Encrypt()">Encrypt</button><br>
-    <button type="button" onclick="reading()">Read</button><br>
-    <button type="button" onclick="Decrypt()">Decrypt</button><br>
+    <div class="button-container">
+        <button type="button" onclick="Encrypt()">Encrypt</button>
+        <button type="button" onclick="reading()">Previous Encryptions</button>
+        <button type="button" onclick="Decrypt()">Decrypt</button>
+    </div>
 
-    <div id="imageContainer"></div>
+    <div id="responseBox" class="responseBox"></div>
+    <div id="tableContainer"></div>
 </form>
 
 <script>
@@ -84,6 +103,7 @@ function Encrypt(type) {
         // Success!!!
         response.json().then(data => {
                 console.log(data);
+                document.getElementById("responseBox").innerText =data;
             }
         )
         
@@ -123,6 +143,8 @@ function Encrypt(type) {
             // Success!!!
             response.json().then(data => {
                     console.log(data);
+                    createTable(data);
+                    //document.getElementById("responseBox").innerText = JSON.stringify(data);
                 }
             )
             
@@ -152,7 +174,7 @@ function Encrypt(type) {
                 cache: 'no-cache', // Set the cache property
                 body: JSON.stringify(body),
             };
-        
+            document.getElementById("responseBox").innerText="Currently Decrypting...";
             // Fetch JWT
             fetch(url, authOptions)
             .then(response => {
@@ -166,6 +188,7 @@ function Encrypt(type) {
                 // Success!!!
                 response.json().then(data => {
                         console.log(data);
+                        document.getElementById("responseBox").innerText = data;
                     }
                 )
                 
@@ -176,6 +199,30 @@ function Encrypt(type) {
                     document.getElementById("error").value = "Could not change information"
                     console.error(err);
                 });
+            }
+            function createTable(data) {
+                const tableContainer = document.getElementById('responseBox');
+            
+                const headers = Object.keys(data[0]);
+            
+                const tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                ${headers.map(header => `<th>${header}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(item => `
+                                <tr>
+                                    ${headers.map(header => `<td>${item[header]}</td>`).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            
+                tableContainer.innerHTML = tableHTML;
             }
 
 </script>
